@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Calculadora de Pontos - Planning</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f2f2f2;
+      }
+
+      .main {
+        display: flex;
+        gap: 30px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .container {
+        background: #fff;
+        padding: 20px 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        width: 450px;
+        box-sizing: border-box;
+      }
+
+      fieldset {
+        margin-bottom: 15px;
+        border: none;
+      }
+
+      legend {
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      .radio-group {
+        display: flex;
+        gap: 15px;
+        margin-top: 5px;
+      }
+
+      label {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        cursor: pointer;
+      }
+
+      .result {
+        margin-top: 20px;
+        font-size: 24px;
+        font-weight: bold;
+        text-align: center;
+      }
+
+      button {
+        margin-top: 10px;
+        padding: 10px 20px;
+        font-size: 16px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      button:hover {
+        background: #0056b3;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        border: 1px solid #ddd;
+        text-align: center;
+      }
+
+      th {
+        background-color: #007bff;
+        color: white;
+      }
+
+      .table-container {
+        max-height: 600px;
+        overflow-y: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="main">
+      <!-- CALCULADORA -->
+      <div class="container">
+        <fieldset>
+          <legend>Incerteza</legend>
+          <div class="radio-group">
+            <label
+              ><input
+                type="radio"
+                name="uncertainty"
+                value="Small"
+              />Small</label
+            >
+            <label
+              ><input
+                type="radio"
+                name="uncertainty"
+                value="Medium"
+              />Medium</label
+            >
+            <label
+              ><input
+                type="radio"
+                name="uncertainty"
+                value="Large"
+              />Large</label
+            >
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Complexidade</legend>
+          <div class="radio-group">
+            <label
+              ><input
+                type="radio"
+                name="complexity"
+                value="Small"
+              />Small</label
+            >
+            <label
+              ><input
+                type="radio"
+                name="complexity"
+                value="Medium"
+              />Medium</label
+            >
+            <label
+              ><input
+                type="radio"
+                name="complexity"
+                value="Large"
+              />Large</label
+            >
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Esforço</legend>
+          <div class="radio-group">
+            <label
+              ><input type="radio" name="effort" value="Small" />Small</label
+            >
+            <label
+              ><input type="radio" name="effort" value="Medium" />Medium</label
+            >
+            <label
+              ><input type="radio" name="effort" value="Large" />Large</label
+            >
+          </div>
+        </fieldset>
+
+        <div class="result" id="result">-</div>
+        <button onclick="clearFields()">Limpar</button>
+      </div>
+
+      <!-- TABELA -->
+      <div class="container">
+        <div class="table-container">
+          <table id="pointsTable">
+            <thead>
+              <tr>
+                <th>Incerteza</th>
+                <th>Complexidade</th>
+                <th>Esforço</th>
+                <th>Pontos</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- JavaScript preencherá -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const pointsTable = {
+        "Small-Small-Small": 1,
+        "Small-Small-Medium": 2,
+        "Small-Small-Large": 5,
+        "Small-Medium-Small": 2,
+        "Small-Medium-Medium": 3,
+        "Small-Medium-Large": 5,
+        "Small-Large-Small": 3,
+        "Small-Large-Medium": 5,
+        "Small-Large-Large": 8,
+        "Medium-Small-Small": 3,
+        "Medium-Small-Medium": 5,
+        "Medium-Small-Large": 8,
+        "Medium-Medium-Small": 5,
+        "Medium-Medium-Medium": 5,
+        "Medium-Medium-Large": 8,
+        "Medium-Large-Small": 5,
+        "Medium-Large-Medium": 8,
+        "Large-Medium-Small": 8,
+        "Large-Medium-Medium": 8,
+        "Large-Medium-Large": 13,
+        "Large-Large-Small": 8,
+        "Large-Large-Medium": 13,
+        "Large-Large-Large": 13,
+      };
+
+      const result = document.getElementById("result");
+      const radios = document.querySelectorAll('input[type="radio"]');
+
+      radios.forEach((radio) => {
+        radio.addEventListener("change", updateResult);
+      });
+
+      function getValue(groupName) {
+        const checked = document.querySelector(
+          `input[name="${groupName}"]:checked`
+        );
+        return checked ? checked.value : "";
+      }
+
+      function updateResult() {
+        const u = getValue("uncertainty");
+        const c = getValue("complexity");
+        const e = getValue("effort");
+
+        if (!u || !c || !e) {
+          result.textContent = "-";
+          return;
+        }
+
+        const key = `${u}-${c}-${e}`;
+        result.textContent = pointsTable.hasOwnProperty(key)
+          ? pointsTable[key]
+          : "inexistente";
+      }
+
+      function clearFields() {
+        radios.forEach((radio) => (radio.checked = false));
+        result.textContent = "-";
+      }
+
+      function renderTable() {
+        const tbody = document.querySelector("#pointsTable tbody");
+        tbody.innerHTML = "";
+
+        for (const key in pointsTable) {
+          const [uncertainty, complexity, effort] = key.split("-");
+          const points = pointsTable[key];
+
+          const row = document.createElement("tr");
+          row.innerHTML = `
+          <td>${uncertainty}</td>
+          <td>${complexity}</td>
+          <td>${effort}</td>
+          <td>${points}</td>
+        `;
+          tbody.appendChild(row);
+        }
+      }
+
+      renderTable();
+    </script>
+  </body>
+</html>
