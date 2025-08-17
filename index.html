@@ -93,6 +93,10 @@
         max-height: 600px;
         overflow-y: auto;
       }
+
+      .hidden {
+        display: none;
+      }
     </style>
   </head>
   <body>
@@ -172,8 +176,13 @@
         <button onclick="clearFields()">Limpar</button>
       </div>
 
+      <!-- BOTÃO MOSTRAR/OCULTAR -->
+      <div class="container" style="width: 150px; display: flex; align-items: center; justify-content: center;">
+        <button onclick="toggleTable()">Mostrar/Ocultar Tabela</button>
+      </div>
+
       <!-- TABELA -->
-      <div class="container">
+      <div class="container" id="tableContainer">
         <div class="table-container">
           <table id="pointsTable">
             <thead>
@@ -271,6 +280,11 @@
         `;
           tbody.appendChild(row);
         }
+      }
+
+      function toggleTable() {
+        const tableContainer = document.getElementById("tableContainer");
+        tableContainer.classList.toggle("hidden");
       }
 
       renderTable();
