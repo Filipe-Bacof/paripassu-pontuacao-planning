@@ -23,6 +23,10 @@
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         width: 450px;
         box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
       }
 
       fieldset {
@@ -35,24 +39,57 @@
         margin-bottom: 5px;
       }
 
-      .radio-group {
+      .button-group-options {
         display: flex;
         gap: 15px;
         margin-top: 5px;
       }
 
-      label {
-        display: flex;
-        align-items: center;
-        gap: 5px;
+      .option-btn {
+        padding: 8px 15px;
+        border: 1px solid #007bff;
+        border-radius: 5px;
+        background: #fff;
+        color: #007bff;
         cursor: pointer;
+        transition: 0.3s;
       }
 
-      .result {
+      .option-btn.active {
+        background: #007bff;
+        color: #fff;
+        text-decoration: underline;
+      }
+
+      .option-btn:hover {
+        background: #0056b3;
+        color: #fff;
+      }
+
+      .result-container {
         margin-top: 20px;
         font-size: 24px;
         font-weight: bold;
         text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .copy-btn {
+        padding: 5px 10px;
+        font-size: 14px;
+        background: #28a745;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        display: none; /* escondido por padrão */
+      }
+
+      .copy-btn:hover {
+        background: #1e7e34;
       }
 
       .button-group {
@@ -90,6 +127,7 @@
       th {
         background-color: #007bff;
         color: white;
+        padding: 3px;
       }
 
       .table-container {
@@ -108,74 +146,35 @@
       <div class="container">
         <fieldset>
           <legend>Incerteza</legend>
-          <div class="radio-group">
-            <label
-              ><input
-                type="radio"
-                name="uncertainty"
-                value="Small"
-              />Small</label
-            >
-            <label
-              ><input
-                type="radio"
-                name="uncertainty"
-                value="Medium"
-              />Medium</label
-            >
-            <label
-              ><input
-                type="radio"
-                name="uncertainty"
-                value="Large"
-              />Large</label
-            >
+          <div class="button-group-options" data-group="uncertainty">
+            <button class="option-btn" data-value="Small">Small</button>
+            <button class="option-btn" data-value="Medium">Medium</button>
+            <button class="option-btn" data-value="Large">Large</button>
           </div>
         </fieldset>
 
         <fieldset>
           <legend>Complexidade</legend>
-          <div class="radio-group">
-            <label
-              ><input
-                type="radio"
-                name="complexity"
-                value="Small"
-              />Small</label
-            >
-            <label
-              ><input
-                type="radio"
-                name="complexity"
-                value="Medium"
-              />Medium</label
-            >
-            <label
-              ><input
-                type="radio"
-                name="complexity"
-                value="Large"
-              />Large</label
-            >
+          <div class="button-group-options" data-group="complexity">
+            <button class="option-btn" data-value="Small">Small</button>
+            <button class="option-btn" data-value="Medium">Medium</button>
+            <button class="option-btn" data-value="Large">Large</button>
           </div>
         </fieldset>
 
         <fieldset>
           <legend>Esforço</legend>
-          <div class="radio-group">
-            <label
-              ><input type="radio" name="effort" value="Small" />Small</label
-            >
-            <label
-              ><input type="radio" name="effort" value="Medium" />Medium</label
-            >
-            <label
-              ><input type="radio" name="effort" value="Large" />Large</label
-            >
+          <div class="button-group-options" data-group="effort">
+            <button class="option-btn" data-value="Small">Small</button>
+            <button class="option-btn" data-value="Medium">Medium</button>
+            <button class="option-btn" data-value="Large">Large</button>
           </div>
         </fieldset>
 
-        <div class="result" id="result">-</div>
+        <div class="result-container">
+          <div class="result" id="result">-</div>
+          <button class="copy-btn" id="copyBtn">Copiar</button>
+        </div>
 
         <!-- GRUPO DE BOTÕES -->
         <div class="button-group">
@@ -196,9 +195,7 @@
                 <th>Pontos</th>
               </tr>
             </thead>
-            <tbody>
-              <!-- JavaScript preencherá -->
-            </tbody>
+            <tbody></tbody>
           </table>
         </div>
       </div>
@@ -232,38 +229,62 @@
       };
 
       const result = document.getElementById("result");
-      const radios = document.querySelectorAll('input[type="radio"]');
+      const copyBtn = document.getElementById("copyBtn");
+      const optionGroups = document.querySelectorAll(".button-group-options");
 
-      radios.forEach((radio) => {
-        radio.addEventListener("change", updateResult);
+      const selections = {
+        uncertainty: "",
+        complexity: "",
+        effort: "",
+      };
+
+      optionGroups.forEach((group) => {
+        const groupName = group.dataset.group;
+        group.querySelectorAll(".option-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            // Remove seleção anterior
+            group
+              .querySelectorAll(".option-btn")
+              .forEach((b) => b.classList.remove("active"));
+            // Marca selecionado
+            btn.classList.add("active");
+            selections[groupName] = btn.dataset.value;
+            updateResult();
+          });
+        });
       });
 
-      function getValue(groupName) {
-        const checked = document.querySelector(
-          `input[name="${groupName}"]:checked`
-        );
-        return checked ? checked.value : "";
-      }
-
       function updateResult() {
-        const u = getValue("uncertainty");
-        const c = getValue("complexity");
-        const e = getValue("effort");
+        const { uncertainty, complexity, effort } = selections;
 
-        if (!u || !c || !e) {
+        if (!uncertainty || !complexity || !effort) {
           result.textContent = "-";
+          copyBtn.style.display = "none";
           return;
         }
 
-        const key = `${u}-${c}-${e}`;
+        const key = `${uncertainty}-${complexity}-${effort}`;
         result.textContent = pointsTable.hasOwnProperty(key)
           ? pointsTable[key]
           : "inexistente";
+
+        copyBtn.style.display = "inline-block"; // mostra botão copiar
       }
 
+      copyBtn.addEventListener("click", () => {
+        navigator.clipboard.writeText(result.textContent).then(() => {
+          copyBtn.textContent = "Copiado!";
+          setTimeout(() => (copyBtn.textContent = "Copiar"), 1500);
+        });
+      });
+
       function clearFields() {
-        radios.forEach((radio) => (radio.checked = false));
+        for (let key in selections) selections[key] = "";
+        document
+          .querySelectorAll(".option-btn")
+          .forEach((btn) => btn.classList.remove("active"));
         result.textContent = "-";
+        copyBtn.style.display = "none";
       }
 
       function renderTable() {
@@ -276,11 +297,11 @@
 
           const row = document.createElement("tr");
           row.innerHTML = `
-          <td>${uncertainty}</td>
-          <td>${complexity}</td>
-          <td>${effort}</td>
-          <td>${points}</td>
-        `;
+            <td>${uncertainty}</td>
+            <td>${complexity}</td>
+            <td>${effort}</td>
+            <td>${points}</td>
+          `;
           tbody.appendChild(row);
         }
       }
