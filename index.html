@@ -232,7 +232,7 @@
       transition: opacity 1s ease;
       z-index: 9999;
       pointer-events: none;
-      max-width: 200px;
+      width: 200px;
       word-wrap: break-word;
       white-space: normal;
       text-align: left;
@@ -377,6 +377,7 @@
       "Medium-Medium-Large": 8,
       "Medium-Large-Small": 5,
       "Medium-Large-Medium": 8,
+      "Medium-Large-Large": 8,
       "Large-Small-Small": 5,
       "Large-Small-Medium": 8,
       "Large-Small-Large": 13,
@@ -450,6 +451,7 @@
         copyBtn.style.display = "none";
         resultContainer.classList.remove("fade");
       }, 500);
+      showToast('Valores limpos! 🧹');
     }
 
     function renderTable() {
@@ -469,15 +471,16 @@
       }
     }
 
-    // Easter Egg no header "Pontos"
+    // Easter Egg trapaça de pontos
     const pontosHeader = document.getElementById("pontosHeader");
 
-    function showToast(message) {
+    function showToast(message, playSound = false) {
       const toast = document.createElement("div");
       toast.className = "toast";
       toast.innerHTML = message.replace(/\n/g, "<br>");
       document.body.appendChild(toast);
-      document.getElementById('gta-sound').play();
+      if (playSound)
+        document.getElementById('gta-sound').play();
 
       setTimeout(() => {
         toast.classList.add("fade-out");
@@ -485,24 +488,41 @@
       }, 5000);
     }
 
+    function toggleEasterEgg() {
+      easterEggMode = !easterEggMode;
+      showToast(
+        easterEggMode
+          ? "TRAPAÇA ATIVADA! 🔥\nPontuações mais altas."
+          : "TRAPAÇA DESATIVADA! ⚠️\nPontuações normalizadas.",
+        true
+      );
+      updateResult();
+    }
+
     pontosHeader.addEventListener("click", () => {
       clickCount++;
-      if (!easterEggMode && clickCount >= 10) {
-        easterEggMode = true;
+      if (clickCount >= 10) {
         clickCount = 0;
-        showToast("TRAPAÇA ATIVADA! 🔥\nPontuações mais altas.");
-        updateResult();
-      } else if (easterEggMode && clickCount >= 10) {
-        easterEggMode = false;
-        clickCount = 0;
-        showToast("TRAPAÇA DESATIVADA! ⚠️\nPontuações normalizadas.");
-        updateResult();
+        toggleEasterEgg();
       }
     });
 
+
+    document.addEventListener("keydown", (e) => {
+      if (e.ctrlKey && e.altKey && e.shiftKey && e.code === "KeyT") {
+        toggleEasterEgg();
+      }
+    });
+
+    // Dar spoiler do easter egg para o usuário
+    // Mas só se ele ficar com o app aberto por 24 horas
+    setTimeout(() => {
+      showToast("Ctrl + Alt + Shift + T");
+    }, 24 * 60 * 60 * 1000);
+
     renderTable();
 
-    /* ---------- cronômetro (mantive) ---------- */
+    // Cronômetro
     function formatTime(date) {
       let h = String(date.getHours()).padStart(2, "0");
       let m = String(date.getMinutes()).padStart(2, "0");
@@ -576,8 +596,42 @@
     }
 
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && !tableContainer.classList.contains("visually-hidden")) {
+      if (e.key === "Escape") {
         toggleTable();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.code.startsWith('Numpad')) {
+        const key = e.key;
+
+        if (key === '0')
+          return clearFields();
+
+
+        const numpadMap = {
+          '1': { group: 'effort', value: 'Small' },
+          '2': { group: 'effort', value: 'Medium' },
+          '3': { group: 'effort', value: 'Large' },
+          '4': { group: 'complexity', value: 'Small' },
+          '5': { group: 'complexity', value: 'Medium' },
+          '6': { group: 'complexity', value: 'Large' },
+          '7': { group: 'uncertainty', value: 'Small' },
+          '8': { group: 'uncertainty', value: 'Medium' },
+          '9': { group: 'uncertainty', value: 'Large' },
+        };
+
+        const selection = numpadMap[key];
+
+        if (selection) {
+          const groupSelector = `[data-group="${selection.group}"]`;
+          const buttonSelector = `[data-value="${selection.value}"]`;
+          const button = document.querySelector(`${groupSelector} ${buttonSelector}`);
+
+          if (button) {
+            button.click();
+          }
+        }
       }
     });
   </script>
