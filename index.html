@@ -437,6 +437,7 @@
       <h2 id="shortcutsTitle">Atalhos de Teclado</h2>
       <ul>
         <li><kbd>Escape | Enter</kbd> Ocultar/Exibir a Tabela de Pontos</li>
+        <li><kbd>Ctrl C</kbd> Copiar valor calculado</li>
         <li><kbd>Numpad 7 | 8 | 9</kbd> Selecionar Incerteza</li>
         <li><kbd>Numpad 4 | 5 | 6</kbd> Selecionar Complexidade</li>
         <li><kbd>Numpad 1 | 2 | 3</kbd> Selecionar Esforço</li>
@@ -734,6 +735,20 @@
         } else {
           modal.classList.remove("visually-hidden");
           modal.classList.add("visible");
+        }
+      }
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.ctrlKey && (e.key === "c")) {
+        const resultValue = result.textContent;
+        if (resultValue !== "-" && resultValue !== "inexistente") {
+          navigator.clipboard.writeText(resultValue).then(() => {
+            copyBtn.textContent = "Copiado!";
+            setTimeout(() => (copyBtn.textContent = "Copiar"), 1500);
+          }).catch(err => {
+            console.error('Falha ao copiar o texto: ', err);
+          });
         }
       }
     });
