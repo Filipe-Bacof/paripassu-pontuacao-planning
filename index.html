@@ -218,6 +218,30 @@
       overflow-y: auto;
     }
 
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #000;
+      color: #ccc;
+      padding: 12px 20px;
+      border-radius: 5px;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      opacity: 1;
+      transition: opacity 1s ease;
+      z-index: 9999;
+      pointer-events: none;
+      max-width: 200px;
+      word-wrap: break-word;
+      white-space: normal;
+      text-align: left;
+    }
+
+    .toast.fade-out {
+      opacity: 0;
+    }
+
     .time-row {
       display: flex;
       margin-top: 20px;
@@ -330,6 +354,7 @@
           </thead>
           <tbody></tbody>
         </table>
+        <audio id="gta-sound" src="gta.mp3"></audio>
       </div>
     </div>
   </div>
@@ -446,17 +471,31 @@
 
     // Easter Egg no header "Pontos"
     const pontosHeader = document.getElementById("pontosHeader");
+
+    function showToast(message) {
+      const toast = document.createElement("div");
+      toast.className = "toast";
+      toast.innerHTML = message.replace(/\n/g, "<br>");
+      document.body.appendChild(toast);
+      document.getElementById('gta-sound').play();
+
+      setTimeout(() => {
+        toast.classList.add("fade-out");
+        toast.addEventListener("transitionend", () => toast.remove());
+      }, 5000);
+    }
+
     pontosHeader.addEventListener("click", () => {
       clickCount++;
-      if (!easterEggMode && clickCount >= 13) {
+      if (!easterEggMode && clickCount >= 10) {
         easterEggMode = true;
         clickCount = 0;
-        alert("🔥 TRAPAÇA ATIVADA!\nAgora a pontuação sobe para o próximo valor Fibonacci.");
+        showToast("TRAPAÇA ATIVADA! 🔥\nPontuações mais altas.");
         updateResult();
-      } else if (easterEggMode && clickCount >= 5) {
+      } else if (easterEggMode && clickCount >= 10) {
         easterEggMode = false;
         clickCount = 0;
-        alert("❌ TRAPAÇA DESATIVADA!\nAs pontuações voltaram ao normal.");
+        showToast("TRAPAÇA DESATIVADA! ⚠️\nPontuações normalizadas.");
         updateResult();
       }
     });
