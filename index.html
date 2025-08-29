@@ -178,7 +178,7 @@
 
         <!-- GRUPO DE BOTÕES -->
         <div class="button-group">
-          <button onclick="clearFields()">Limpar</button>
+          <button id="clearBtn" onclick="clearFields()">Limpar</button>
           <button onclick="toggleTable()">Mostrar/Ocultar Tabela</button>
         </div>
       </div>
@@ -228,9 +228,21 @@
         "Large-Large-Large": 13,
       };
 
+      const fibonacciMap = {
+        2: 3,
+        3: 5,
+        5: 8,
+        8: 13,
+        13: 21,
+      };
+
+      let easterEggMode = false;
+      let holdTimer;
+
       const result = document.getElementById("result");
       const copyBtn = document.getElementById("copyBtn");
       const optionGroups = document.querySelectorAll(".button-group-options");
+      const clearBtn = document.getElementById("clearBtn");
 
       const selections = {
         uncertainty: "",
@@ -242,11 +254,7 @@
         const groupName = group.dataset.group;
         group.querySelectorAll(".option-btn").forEach((btn) => {
           btn.addEventListener("click", () => {
-            // Remove seleção anterior
-            group
-              .querySelectorAll(".option-btn")
-              .forEach((b) => b.classList.remove("active"));
-            // Marca selecionado
+            group.querySelectorAll(".option-btn").forEach((b) => b.classList.remove("active"));
             btn.classList.add("active");
             selections[groupName] = btn.dataset.value;
             updateResult();
@@ -264,11 +272,14 @@
         }
 
         const key = `${uncertainty}-${complexity}-${effort}`;
-        result.textContent = pointsTable.hasOwnProperty(key)
-          ? pointsTable[key]
-          : "inexistente";
+        let value = pointsTable.hasOwnProperty(key) ? pointsTable[key] : "inexistente";
 
-        copyBtn.style.display = "inline-block"; // mostra botão copiar
+        if (easterEggMode && fibonacciMap[value]) {
+          value = fibonacciMap[value];
+        }
+
+        result.textContent = value;
+        copyBtn.style.display = "inline-block";
       }
 
       copyBtn.addEventListener("click", () => {
@@ -280,9 +291,7 @@
 
       function clearFields() {
         for (let key in selections) selections[key] = "";
-        document
-          .querySelectorAll(".option-btn")
-          .forEach((btn) => btn.classList.remove("active"));
+        document.querySelectorAll(".option-btn").forEach((btn) => btn.classList.remove("active"));
         result.textContent = "-";
         copyBtn.style.display = "none";
       }
@@ -310,6 +319,30 @@
         const tableContainer = document.getElementById("tableContainer");
         tableContainer.classList.toggle("hidden");
       }
+
+      // Easter Egg - pressionar o botão "Limpar"
+      clearBtn.addEventListener("mousedown", () => {
+        holdTimer = setTimeout(() => {
+          if (!easterEggMode) {
+            easterEggMode = true;
+            window.alert("🔥 TRAPAÇA ATIVADA! Agora a pontuação sobe para o próximo valor Fibonacci.");
+            updateResult();
+          }
+        }, 13000); // 13 segundos para ativar
+
+        holdTimerDeactivate = setTimeout(() => {
+          if (easterEggMode) {
+            easterEggMode = false;
+            window.alert("❌ TRAPAÇA DESATIVADA! As pontuações voltaram ao normal.");
+            updateResult();
+          }
+        }, 2000);
+      });
+
+      clearBtn.addEventListener("mouseup", () => {
+        clearTimeout(holdTimer);
+        clearTimeout(holdTimerDeactivate);
+      });
 
       renderTable();
     </script>
