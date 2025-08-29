@@ -116,6 +116,11 @@
       table {
         width: 100%;
         border-collapse: collapse;
+        cursor: default;
+      }
+
+      #pontosHeader {
+        cursor: pointer;
       }
 
       th,
@@ -137,6 +142,36 @@
 
       .hidden {
         display: none;
+      }
+
+      .time-row {
+        display: flex;
+        margin-top: 20px;
+        width: 100%;
+        gap: 10px;
+      }
+
+      .time-item {
+        flex: 1;
+        border: 1px solid #007bff;
+        color: #007bff;
+        border-radius: 8px;
+        padding: 10px;
+        background: #fff;
+        text-align: center;
+        cursor: default;
+      }
+
+      .time-item h4 {
+        margin: 0 0 5px 0;
+        font-size: 16px;
+        text-decoration: underline;
+      }
+
+      .time-item p {
+        margin: 0;
+        font-size: 18px;
+        font-weight: bold;
       }
     </style>
   </head>
@@ -180,6 +215,18 @@
         <div class="button-group">
           <button id="clearBtn" onclick="clearFields()">Limpar</button>
           <button onclick="toggleTable()">Mostrar/Ocultar Tabela</button>
+        </div>
+
+        <!-- CRONÔMETRO -->
+        <div class="time-row">
+          <div class="time-item">
+            <h4>Horário de abertura</h4>
+            <p id="openTime">--:--</p>
+          </div>
+          <div class="time-item">
+            <h4>Tempo decorrido</h4>
+            <p id="elapsedTime">00:00</p>
+          </div>
         </div>
       </div>
 
@@ -345,6 +392,35 @@
       });
 
       renderTable();
+
+      // Cronômetro
+      function formatTime(date) {
+        let h = String(date.getHours()).padStart(2, "0");
+        let m = String(date.getMinutes()).padStart(2, "0");
+        return `${h}:${m}`;
+      }
+
+      const openTimeEl = document.getElementById("openTime");
+      const elapsedTimeEl = document.getElementById("elapsedTime");
+
+      const startTime = new Date();
+      openTimeEl.textContent = formatTime(startTime);
+
+      function updateElapsed() {
+        const now = new Date();
+        let diffMs = now - startTime;
+        let diffMinutes = Math.floor(diffMs / 60000);
+        let hours = Math.floor(diffMinutes / 60);
+        let minutes = diffMinutes % 60;
+
+        elapsedTimeEl.textContent =
+          String(hours).padStart(2, "0") +
+          ":" +
+          String(minutes).padStart(2, "0");
+      }
+
+      updateElapsed();
+      setInterval(updateElapsed, 60000);
     </script>
   </body>
 </html>
