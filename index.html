@@ -17,6 +17,8 @@
       background: #f2f2f2;
       margin: 0;
       padding: 20px;
+      height: 100vh;
+      overflow: hidden;
     }
 
     .stage {
@@ -26,6 +28,7 @@
       margin: 0 auto;
       min-height: 520px;
       box-sizing: border-box;
+      height: 100%;
     }
 
     .main {
@@ -201,6 +204,14 @@
       user-select: none;
     }
 
+    th {
+      font-size: 14px;
+    }
+
+    td {
+      font-size: 12px;
+    }
+
     th,
     td {
       border: 1px solid #ddd;
@@ -277,6 +288,68 @@
       background: #007bff !important;
       color: white !important;
       transition: none;
+    }
+
+    .shortcuts-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0s 0.3s;
+    }
+
+    .shortcuts-modal.visible {
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.3s ease;
+    }
+
+    .shortcuts-content {
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      text-align: left;
+      max-width: 400px;
+      width: 90%;
+    }
+
+    .shortcuts-content h2 {
+      text-align: center;
+      margin-top: 0;
+      font-size: 24px;
+      color: #007bff;
+    }
+
+    .shortcuts-content ul {
+      list-style: none;
+      padding: 0;
+      margin: 20px 0 0;
+    }
+
+    .shortcuts-content li {
+      margin-bottom: 15px;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .shortcuts-content kbd {
+      display: inline-block;
+      padding: 3px 6px;
+      font-family: monospace;
+      font-size: 14px;
+      background-color: #eee;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), 0 0 0 2px #fff inset;
     }
 
     @media (max-width: 980px) {
@@ -356,6 +429,20 @@
         </table>
         <audio id="gta-sound" src="gta.mp3"></audio>
       </div>
+    </div>
+  </div>
+  <div class="shortcuts-modal visually-hidden" id="shortcutsModal" aria-modal="true" role="dialog"
+    aria-labelledby="shortcutsTitle">
+    <div class="shortcuts-content">
+      <h2 id="shortcutsTitle">Atalhos de Teclado</h2>
+      <ul>
+        <li><kbd>Escape | Enter</kbd> Ocultar/Exibir a Tabela de Pontos</li>
+        <li><kbd>Numpad 7 | 8 | 9</kbd> Selecionar Incerteza</li>
+        <li><kbd>Numpad 4 | 5 | 6</kbd> Selecionar Complexidade</li>
+        <li><kbd>Numpad 1 | 2 | 3</kbd> Selecionar Esforço</li>
+        <li><kbd>Numpad 0</kbd> Limpar valores</li>
+        <li><kbd>Barra de Espaço</kbd> Mostrar este painel de atalhos</li>
+      </ul>
     </div>
   </div>
   <script>
@@ -519,6 +606,8 @@
       showToast("Ctrl + Alt + Shift + T");
     }, 24 * 60 * 60 * 1000);
 
+    showToast("Pressione espaço para ver os atalhos de teclado!");
+
     renderTable();
 
     // Cronômetro
@@ -595,7 +684,7 @@
     }
 
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") {
+      if (e.key === "Escape" || e.key === "Enter") {
         toggleTable();
       }
     });
@@ -630,6 +719,21 @@
           if (button) {
             button.click();
           }
+        }
+      }
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.code === "Space") {
+        const modal = document.getElementById("shortcutsModal");
+        if (modal.classList.contains("visible")) {
+          modal.classList.remove("visible");
+          setTimeout(() => {
+            modal.classList.add("visually-hidden");
+          }, 300);
+        } else {
+          modal.classList.remove("visually-hidden");
+          modal.classList.add("visible");
         }
       }
     });
