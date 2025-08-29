@@ -1,426 +1,547 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Pontuação</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        background: #f2f2f2;
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Pontuação</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root {
+      --offset: 482px;
+      --gap: 32px;
+      --duration: 600ms;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .stage {
+      position: relative;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      min-height: 520px;
+      box-sizing: border-box;
+    }
+
+    .main {
+      display: flex;
+      gap: var(--gap);
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .container {
+      background: #fff;
+      padding: 20px 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 450px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      position: absolute;
+      left: 50%;
+      top: 20px;
+      transform: translateX(-50%);
+      transition: transform var(--duration) cubic-bezier(.22, 1, .36, 1), opacity var(--duration) ease, visibility var(--duration) ease;
+      will-change: transform, opacity;
+    }
+
+    #calculatorContainer {
+      z-index: 3;
+    }
+
+    #tableContainer {
+      z-index: 2;
+    }
+
+    .visually-hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .stage.table-visible #calculatorContainer {
+      transform: translateX(calc(-100% - var(--gap) / 2));
+    }
+
+    .stage.table-visible #tableContainer {
+      transform: translateX(calc(0% + var(--gap) / 2));
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .stage.meeting #calculatorContainer,
+    .stage.meeting #tableContainer {
+      transform: translateX(-50%);
+    }
+
+    .stage.meeting #calculatorContainer {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .stage.meeting #tableContainer {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    fieldset {
+      margin-bottom: 15px;
+      border: none;
+    }
+
+    legend {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .button-group-options {
+      display: flex;
+      gap: 15px;
+      margin-top: 5px;
+    }
+
+    .option-btn {
+      padding: 8px 15px;
+      border: 1px solid #007bff;
+      border-radius: 5px;
+      background: #fff;
+      color: #007bff;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .option-btn.active {
+      background: #007bff;
+      color: #fff;
+      text-decoration: underline;
+    }
+
+    .option-btn:hover {
+      background: #0056b3;
+      color: #fff;
+    }
+
+    .result-container {
+      margin-top: 20px;
+      font-size: 24px;
+      font-weight: bold;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      transition: opacity 0.5s ease;
+    }
+
+    .copy-btn {
+      padding: 5px 10px;
+      font-size: 14px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      display: none;
+      /* escondido por padrão */
+    }
+
+    .copy-btn:hover {
+      background: #1e7e34;
+    }
+
+    .button-group {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      cursor: default;
+    }
+
+    #pontosHeader {
+      cursor: pointer;
+    }
+
+    .no-select {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    th,
+    td {
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+
+    th {
+      background-color: #007bff;
+      color: white;
+      padding: 3px;
+    }
+
+    .table-container {
+      max-height: 600px;
+      overflow-y: auto;
+    }
+
+    .time-row {
+      display: flex;
+      margin-top: 20px;
+      width: 100%;
+      gap: 10px;
+    }
+
+    .time-item {
+      flex: 1;
+      border: 1px solid #007bff;
+      color: #007bff;
+      border-radius: 8px;
+      padding: 10px;
+      background: #fff;
+      text-align: center;
+      cursor: default;
+      transition: background 2s, color 2s;
+    }
+
+    .time-item h4 {
+      margin: 0 0 5px 0;
+      font-size: 16px;
+      text-decoration: underline;
+    }
+
+    .time-item p {
+      margin: 0;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .flash-blue {
+      background: #007bff !important;
+      color: white !important;
+      transition: none;
+    }
+
+    @media (max-width: 980px) {
+      :root {
+        --offset: 412px;
       }
+    }
 
-      .main {
-        display: flex;
-        gap: 30px;
-        justify-content: center;
-        flex-wrap: wrap;
+    @media (max-width: 640px) {
+      :root {
+        --offset: 352px;
       }
+    }
+  </style>
+</head>
 
-      .container {
-        background: #fff;
-        padding: 20px 30px;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        width: 450px;
-        box-sizing: border-box;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-      }
-
-      fieldset {
-        margin-bottom: 15px;
-        border: none;
-      }
-
-      legend {
-        font-weight: bold;
-        margin-bottom: 5px;
-      }
-
-      .button-group-options {
-        display: flex;
-        gap: 15px;
-        margin-top: 5px;
-      }
-
-      .option-btn {
-        padding: 8px 15px;
-        border: 1px solid #007bff;
-        border-radius: 5px;
-        background: #fff;
-        color: #007bff;
-        cursor: pointer;
-        transition: 0.3s;
-      }
-
-      .option-btn.active {
-        background: #007bff;
-        color: #fff;
-        text-decoration: underline;
-      }
-
-      .option-btn:hover {
-        background: #0056b3;
-        color: #fff;
-      }
-
-      .result-container {
-        margin-top: 20px;
-        font-size: 24px;
-        font-weight: bold;
-        text-align: center;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 10px;
-      }
-
-      .copy-btn {
-        padding: 5px 10px;
-        font-size: 14px;
-        background: #28a745;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        display: none; /* escondido por padrão */
-      }
-
-      .copy-btn:hover {
-        background: #1e7e34;
-      }
-
-      .button-group {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        margin-top: 15px;
-      }
-
-      button {
-        padding: 10px 20px;
-        font-size: 16px;
-        background: #007bff;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-      }
-
-      button:hover {
-        background: #0056b3;
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        cursor: default;
-      }
-
-      #pontosHeader {
-        cursor: pointer;
-      }
-
-      th,
-      td {
-        border: 1px solid #ddd;
-        text-align: center;
-      }
-
-      th {
-        background-color: #007bff;
-        color: white;
-        padding: 3px;
-      }
-
-      .table-container {
-        max-height: 600px;
-        overflow-y: auto;
-      }
-
-      .hidden {
-        display: none;
-      }
-
-      .time-row {
-        display: flex;
-        margin-top: 20px;
-        width: 100%;
-        gap: 10px;
-      }
-
-      .time-item {
-        flex: 1;
-        border: 1px solid #007bff;
-        color: #007bff;
-        border-radius: 8px;
-        padding: 10px;
-        background: #fff;
-        text-align: center;
-        cursor: default;
-      }
-
-      .time-item h4 {
-        margin: 0 0 5px 0;
-        font-size: 16px;
-        text-decoration: underline;
-      }
-
-      .time-item p {
-        margin: 0;
-        font-size: 18px;
-        font-weight: bold;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="main">
-      <!-- CALCULADORA -->
-      <div class="container">
-        <fieldset>
-          <legend>Incerteza</legend>
-          <div class="button-group-options" data-group="uncertainty">
-            <button class="option-btn" data-value="Small">Small</button>
-            <button class="option-btn" data-value="Medium">Medium</button>
-            <button class="option-btn" data-value="Large">Large</button>
-          </div>
-        </fieldset>
-
-        <fieldset>
-          <legend>Complexidade</legend>
-          <div class="button-group-options" data-group="complexity">
-            <button class="option-btn" data-value="Small">Small</button>
-            <button class="option-btn" data-value="Medium">Medium</button>
-            <button class="option-btn" data-value="Large">Large</button>
-          </div>
-        </fieldset>
-
-        <fieldset>
-          <legend>Esforço</legend>
-          <div class="button-group-options" data-group="effort">
-            <button class="option-btn" data-value="Small">Small</button>
-            <button class="option-btn" data-value="Medium">Medium</button>
-            <button class="option-btn" data-value="Large">Large</button>
-          </div>
-        </fieldset>
-
-        <div class="result-container">
-          <div class="result" id="result">-</div>
-          <button class="copy-btn" id="copyBtn">Copiar</button>
+<body>
+  <div class="stage" id="stage">
+    <div class="main" aria-hidden="true"></div>
+    <div class="container" id="calculatorContainer">
+      <fieldset>
+        <legend>Incerteza</legend>
+        <div class="button-group-options" data-group="uncertainty">
+          <button class="option-btn" data-value="Small">Small</button>
+          <button class="option-btn" data-value="Medium">Medium</button>
+          <button class="option-btn" data-value="Large">Large</button>
         </div>
-
-        <!-- GRUPO DE BOTÕES -->
-        <div class="button-group">
-          <button id="clearBtn" onclick="clearFields()">Limpar</button>
-          <button onclick="toggleTable()">Mostrar/Ocultar Tabela</button>
+      </fieldset>
+      <fieldset>
+        <legend>Complexidade</legend>
+        <div class="button-group-options" data-group="complexity">
+          <button class="option-btn" data-value="Small">Small</button>
+          <button class="option-btn" data-value="Medium">Medium</button>
+          <button class="option-btn" data-value="Large">Large</button>
         </div>
-
-        <!-- CRONÔMETRO -->
-        <div class="time-row">
-          <div class="time-item">
-            <h4>Horário de abertura</h4>
-            <p id="openTime">--:--</p>
-          </div>
-          <div class="time-item">
-            <h4>Tempo decorrido</h4>
-            <p id="elapsedTime">00:00</p>
-          </div>
+      </fieldset>
+      <fieldset>
+        <legend>Esforço</legend>
+        <div class="button-group-options" data-group="effort">
+          <button class="option-btn" data-value="Small">Small</button>
+          <button class="option-btn" data-value="Medium">Medium</button>
+          <button class="option-btn" data-value="Large">Large</button>
         </div>
+      </fieldset>
+      <div class="result-container" id="resultContainer">
+        <div class="result" id="result">-</div>
+        <button class="copy-btn" id="copyBtn">Copiar</button>
       </div>
-
-      <!-- TABELA -->
-      <div class="container" id="tableContainer">
-        <div class="table-container">
-          <table id="pointsTable">
-            <thead>
-              <tr>
-                <th>Incerteza</th>
-                <th>Complexidade</th>
-                <th>Esforço</th>
-                <th id="pontosHeader">Pontos</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
+      <div class="button-group">
+        <button id="clearBtn" onclick="clearFields()">Limpar valores</button>
+        <button id="toggleTableBtn" onclick="toggleTable()">Mostrar tabela</button>
+        <button onclick="resetTime()">Reiniciar tempo</button>
+      </div>
+      <div class="time-row">
+        <div class="time-item">
+          <h4>Horário de abertura</h4>
+          <p id="openTime">--:--:--</p>
+        </div>
+        <div class="time-item">
+          <h4>Tempo decorrido</h4>
+          <p id="elapsedTime">00:00:00</p>
         </div>
       </div>
     </div>
+    <div class="container visually-hidden" id="tableContainer">
+      <div class="table-container">
+        <table id="pointsTable">
+          <thead>
+            <tr>
+              <th>Incerteza</th>
+              <th>Complexidade</th>
+              <th>Esforço</th>
+              <th id="pontosHeader">Pontos</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <script>
+    const pointsTable = {
+      "Small-Small-Small": 1,
+      "Small-Small-Medium": 2,
+      "Small-Small-Large": 5,
+      "Small-Medium-Small": 2,
+      "Small-Medium-Medium": 3,
+      "Small-Medium-Large": 5,
+      "Small-Large-Small": 3,
+      "Small-Large-Medium": 5,
+      "Small-Large-Large": 8,
+      "Medium-Small-Small": 3,
+      "Medium-Small-Medium": 5,
+      "Medium-Small-Large": 8,
+      "Medium-Medium-Small": 5,
+      "Medium-Medium-Medium": 5,
+      "Medium-Medium-Large": 8,
+      "Medium-Large-Small": 5,
+      "Medium-Large-Medium": 8,
+      "Large-Small-Small": 5,
+      "Large-Small-Medium": 8,
+      "Large-Small-Large": 13,
+      "Large-Medium-Small": 8,
+      "Large-Medium-Medium": 8,
+      "Large-Medium-Large": 13,
+      "Large-Large-Small": 8,
+      "Large-Large-Medium": 13,
+      "Large-Large-Large": 13,
+    };
 
-    <script>
-      const pointsTable = {
-        "Small-Small-Small": 1,
-        "Small-Small-Medium": 2,
-        "Small-Small-Large": 5,
-        "Small-Medium-Small": 2,
-        "Small-Medium-Medium": 3,
-        "Small-Medium-Large": 5,
-        "Small-Large-Small": 3,
-        "Small-Large-Medium": 5,
-        "Small-Large-Large": 8,
-        "Medium-Small-Small": 3,
-        "Medium-Small-Medium": 5,
-        "Medium-Small-Large": 8,
-        "Medium-Medium-Small": 5,
-        "Medium-Medium-Medium": 5,
-        "Medium-Medium-Large": 8,
-        "Medium-Large-Small": 5,
-        "Medium-Large-Medium": 8,
-        "Large-Medium-Small": 8,
-        "Large-Medium-Medium": 8,
-        "Large-Medium-Large": 13,
-        "Large-Large-Small": 8,
-        "Large-Large-Medium": 13,
-        "Large-Large-Large": 13,
-      };
+    const fibonacciMap = { 1: 2, 2: 3, 3: 5, 5: 8, 8: 13, 13: 21 };
 
-      const fibonacciMap = {
-        1: 2,
-        2: 3,
-        3: 5,
-        5: 8,
-        8: 13,
-        13: 21,
-      };
+    let easterEggMode = false;
+    let clickCount = 0;
 
-      let easterEggMode = false;
-      let clickCount = 0;
+    const result = document.getElementById("result");
+    const copyBtn = document.getElementById("copyBtn");
+    const optionGroups = document.querySelectorAll(".button-group-options");
+    const resultContainer = document.getElementById("resultContainer");
 
-      const result = document.getElementById("result");
-      const copyBtn = document.getElementById("copyBtn");
-      const optionGroups = document.querySelectorAll(".button-group-options");
+    const selections = { uncertainty: "", complexity: "", effort: "" };
 
-      const selections = {
-        uncertainty: "",
-        complexity: "",
-        effort: "",
-      };
-
-      optionGroups.forEach((group) => {
-        const groupName = group.dataset.group;
-        group.querySelectorAll(".option-btn").forEach((btn) => {
-          btn.addEventListener("click", () => {
-            group.querySelectorAll(".option-btn").forEach((b) =>
-              b.classList.remove("active")
-            );
-            btn.classList.add("active");
-            selections[groupName] = btn.dataset.value;
-            updateResult();
-          });
+    optionGroups.forEach((group) => {
+      const groupName = group.dataset.group;
+      group.querySelectorAll(".option-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          group.querySelectorAll(".option-btn").forEach((b) =>
+            b.classList.remove("active")
+          );
+          btn.classList.add("active");
+          selections[groupName] = btn.dataset.value;
+          updateResult();
         });
       });
+    });
 
-      function updateResult() {
-        const { uncertainty, complexity, effort } = selections;
-
-        if (!uncertainty || !complexity || !effort) {
-          result.textContent = "-";
-          copyBtn.style.display = "none";
-          return;
-        }
-
-        const key = `${uncertainty}-${complexity}-${effort}`;
-        let value = pointsTable.hasOwnProperty(key)
-          ? pointsTable[key]
-          : "inexistente";
-
-        if (easterEggMode && fibonacciMap[value]) {
-          value = fibonacciMap[value];
-        }
-
-        result.textContent = value;
-        copyBtn.style.display = "inline-block";
+    function updateResult() {
+      const { uncertainty, complexity, effort } = selections;
+      if (!uncertainty || !complexity || !effort) {
+        result.textContent = "-";
+        copyBtn.style.display = "none";
+        return;
       }
+      const key = `${uncertainty}-${complexity}-${effort}`;
+      let value = pointsTable.hasOwnProperty(key)
+        ? pointsTable[key]
+        : "inexistente";
+      if (easterEggMode && fibonacciMap[value]) {
+        value = fibonacciMap[value];
+      }
+      result.textContent = value;
+      copyBtn.style.display = "inline-block";
+    }
 
-      copyBtn.addEventListener("click", () => {
-        navigator.clipboard.writeText(result.textContent).then(() => {
-          copyBtn.textContent = "Copiado!";
-          setTimeout(() => (copyBtn.textContent = "Copiar"), 1500);
-        });
+    copyBtn.addEventListener("click", () => {
+      navigator.clipboard.writeText(result.textContent).then(() => {
+        copyBtn.textContent = "Copiado!";
+        setTimeout(() => (copyBtn.textContent = "Copiar"), 1500);
       });
+    });
 
-      function clearFields() {
+    function clearFields() {
+      resultContainer.classList.add("fade");
+      setTimeout(() => {
         for (let key in selections) selections[key] = "";
         document
           .querySelectorAll(".option-btn")
           .forEach((btn) => btn.classList.remove("active"));
         result.textContent = "-";
         copyBtn.style.display = "none";
-      }
+        resultContainer.classList.remove("fade");
+      }, 500);
+    }
 
-      function renderTable() {
-        const tbody = document.querySelector("#pointsTable tbody");
-        tbody.innerHTML = "";
-
-        for (const key in pointsTable) {
-          const [uncertainty, complexity, effort] = key.split("-");
-          const points = pointsTable[key];
-
-          const row = document.createElement("tr");
-          row.innerHTML = `
+    function renderTable() {
+      const tbody = document.querySelector("#pointsTable tbody");
+      tbody.innerHTML = "";
+      for (const key in pointsTable) {
+        const [uncertainty, complexity, effort] = key.split("-");
+        const points = pointsTable[key];
+        const row = document.createElement("tr");
+        row.innerHTML = `
             <td>${uncertainty}</td>
             <td>${complexity}</td>
             <td>${effort}</td>
             <td>${points}</td>
           `;
-          tbody.appendChild(row);
-        }
+        tbody.appendChild(row);
       }
+    }
 
-      function toggleTable() {
-        const tableContainer = document.getElementById("tableContainer");
-        tableContainer.classList.toggle("hidden");
+    // Easter Egg no header "Pontos"
+    const pontosHeader = document.getElementById("pontosHeader");
+    pontosHeader.addEventListener("click", () => {
+      clickCount++;
+      if (!easterEggMode && clickCount >= 13) {
+        easterEggMode = true;
+        clickCount = 0;
+        alert("🔥 TRAPAÇA ATIVADA!\nAgora a pontuação sobe para o próximo valor Fibonacci.");
+        updateResult();
+      } else if (easterEggMode && clickCount >= 5) {
+        easterEggMode = false;
+        clickCount = 0;
+        alert("❌ TRAPAÇA DESATIVADA!\nAs pontuações voltaram ao normal.");
+        updateResult();
       }
+    });
 
-      // Easter Egg no header "Pontos"
-      const pontosHeader = document.getElementById("pontosHeader");
-      pontosHeader.addEventListener("click", () => {
-        clickCount++;
+    renderTable();
 
-        if (!easterEggMode && clickCount >= 13) {
-          easterEggMode = true;
-          clickCount = 0;
-          alert("🔥 TRAPAÇA ATIVADA! Agora a pontuação sobe para o próximo valor Fibonacci.");
-          updateResult();
-        } else if (easterEggMode && clickCount >= 5) {
-          easterEggMode = false;
-          clickCount = 0;
-          alert("❌ TRAPAÇA DESATIVADA! As pontuações voltaram ao normal.");
-          updateResult();
-        }
-      });
+    /* ---------- cronômetro (mantive) ---------- */
+    function formatTime(date) {
+      let h = String(date.getHours()).padStart(2, "0");
+      let m = String(date.getMinutes()).padStart(2, "0");
+      let s = String(date.getSeconds()).padStart(2, "0");
+      return `${h}:${m}:${s}`;
+    }
 
-      renderTable();
+    const openTimeEl = document.getElementById("openTime");
+    const elapsedTimeEl = document.getElementById("elapsedTime");
+    const timeItems = document.querySelectorAll(".time-item");
 
-      // Cronômetro
-      function formatTime(date) {
-        let h = String(date.getHours()).padStart(2, "0");
-        let m = String(date.getMinutes()).padStart(2, "0");
-        return `${h}:${m}`;
-      }
+    let startTime = new Date();
+    openTimeEl.textContent = formatTime(startTime);
 
-      const openTimeEl = document.getElementById("openTime");
-      const elapsedTimeEl = document.getElementById("elapsedTime");
+    function updateElapsed() {
+      const now = new Date();
+      let diffMs = now - startTime;
+      let hours = Math.floor(diffMs / 3600000);
+      let minutes = Math.floor((diffMs % 3600000) / 60000);
+      let seconds = Math.floor((diffMs % 60000) / 1000);
+      elapsedTimeEl.textContent =
+        String(hours).padStart(2, "0") +
+        ":" +
+        String(minutes).padStart(2, "0") +
+        ":" +
+        String(seconds).padStart(2, "0");
+    }
 
-      const startTime = new Date();
+    function resetTime() {
+      startTime = new Date();
       openTimeEl.textContent = formatTime(startTime);
-
-      function updateElapsed() {
-        const now = new Date();
-        let diffMs = now - startTime;
-        let diffMinutes = Math.floor(diffMs / 60000);
-        let hours = Math.floor(diffMinutes / 60);
-        let minutes = diffMinutes % 60;
-
-        elapsedTimeEl.textContent =
-          String(hours).padStart(2, "0") +
-          ":" +
-          String(minutes).padStart(2, "0");
-      }
-
       updateElapsed();
-      setInterval(updateElapsed, 60000);
-    </script>
-  </body>
+      timeItems.forEach((el) => {
+        el.classList.add("flash-blue");
+        void el.offsetWidth;
+        setTimeout(() => el.classList.remove("flash-blue"), 10);
+      });
+    }
+
+    updateElapsed();
+    setInterval(updateElapsed, 1000);
+
+    const stage = document.getElementById("stage");
+    const calculatorContainer = document.getElementById("calculatorContainer");
+    const tableContainer = document.getElementById("tableContainer");
+    const toggleBtn = document.getElementById("toggleTableBtn");
+    const TRANSITION_DURATION = 600;
+
+    function toggleTable() {
+      if (tableContainer.classList.contains("visually-hidden")) {
+
+        tableContainer.classList.remove("visually-hidden");
+
+        void tableContainer.offsetWidth;
+
+        stage.classList.remove("meeting");
+        stage.classList.add("table-visible");
+
+        toggleBtn.textContent = "Ocultar tabela";
+      } else {
+        stage.classList.add("meeting");
+        stage.classList.remove("table-visible");
+        toggleBtn.textContent = "Mostrar tabela";
+
+        setTimeout(() => {
+          tableContainer.classList.add("visually-hidden");
+          stage.classList.remove("meeting");
+          calculatorContainer.style.opacity = "";
+        }, TRANSITION_DURATION + 20);
+      }
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !tableContainer.classList.contains("visually-hidden")) {
+        toggleTable();
+      }
+    });
+  </script>
+</body>
+
 </html>
