@@ -26,9 +26,11 @@
       color: #000;
       margin: 0;
       padding: 20px;
-      height: 100vh;
-      overflow: hidden;
+      min-height: 100vh;
+      overflow-x: hidden;
+      overflow-y: auto;
       transition: background 0.3s, color 0.3s;
+      -webkit-overflow-scrolling: touch;
     }
 
     /* DARK MODE EXTRA STYLES - BEGIN */
@@ -500,6 +502,34 @@
     @media (max-width: 640px) {
       :root {
         --offset: 352px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .stage {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: auto;
+        height: auto;
+      }
+
+      .container {
+        position: static;
+        transform: none;
+        width: 100%;
+        max-width: 450px;
+        margin-bottom: 20px;
+      }
+
+      .stage.table-visible #calculatorContainer,
+      .stage.table-visible #tableContainer,
+      .stage.meeting #calculatorContainer,
+      .stage.meeting #tableContainer {
+        transform: none;
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
       }
     }
   </style>
