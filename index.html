@@ -601,7 +601,11 @@
           </thead>
           <tbody></tbody>
         </table>
-        <audio id="gta-sound" src="gta.mp3"></audio>
+        <audio id="gta-cheat-sound" src="gta-cheat.mp3"></audio>
+        <audio id="gta-mission-pass-sound" src="gta-mission-pass.mp3"></audio>
+        <audio id="gta-menu-1-sound" src="gta-menu-1.mp3"></audio>
+        <audio id="gta-menu-2-sound" src="gta-menu-2.mp3"></audio>
+        <audio id="gta-menu-3-sound" src="gta-menu-3.mp3"></audio>
       </div>
     </div>
   </div>
@@ -683,6 +687,19 @@
 
     const selections = { uncertainty: "", complexity: "", effort: "" };
 
+    const menu1Sound = document.getElementById("gta-menu-1-sound");
+    const menu2Sound = document.getElementById("gta-menu-2-sound");
+    const menu3Sound = document.getElementById("gta-menu-3-sound");
+    const missionPassedSound = document.getElementById("gta-mission-pass-sound");
+    const gtaCheatSound = document.getElementById("gta-cheat-sound");
+
+    function playSound(audioElement) {
+      if (easterEggMode && audioElement) {
+      audioElement.currentTime = 0;
+      audioElement.play();
+      }
+    }
+
     optionGroups.forEach((group) => {
       const groupName = group.dataset.group;
       group.querySelectorAll(".option-btn").forEach((btn) => {
@@ -698,6 +715,7 @@
     });
 
     function updateResult() {
+      if (easterEggMode) playSound(gtaCheatSound)
       const { uncertainty, complexity, effort } = selections;
       if (!uncertainty || !complexity || !effort) {
         result.textContent = "-";
@@ -718,11 +736,13 @@
     copyBtn.addEventListener("click", () => {
       navigator.clipboard.writeText(result.textContent).then(() => {
         copyBtn.textContent = "Copiado!";
+        if (easterEggMode) playSound(menu1Sound)
         setTimeout(() => (copyBtn.textContent = "Copiar"), 1500);
       });
     });
 
     function clearFields() {
+      if (easterEggMode) playSound(menu3Sound)
       resultContainer.classList.add("fade");
       setTimeout(() => {
         for (let key in selections) selections[key] = "";
@@ -760,7 +780,7 @@
       toast.className = "toast";
       toast.innerHTML = message.replace(/\n/g, "<br>");
       document.body.appendChild(toast);
-      if (playSound) document.getElementById("gta-sound").play();
+      if (playSound) document.getElementById("gta-cheat-sound").play();
 
       setTimeout(() => {
         toast.classList.add("fade-out");
@@ -833,6 +853,7 @@
     }
 
     function resetTime() {
+      if (easterEggMode) playSound(missionPassedSound)
       startTime = new Date();
       openTimeEl.textContent = formatTime(startTime);
       updateElapsed();
@@ -864,9 +885,11 @@
         stage.classList.add("table-visible");
 
         toggleBtn.textContent = "Ocultar tabela";
+        if (easterEggMode) playSound(menu1Sound)
       } else {
         stage.classList.add("meeting");
         stage.classList.remove("table-visible");
+        if (easterEggMode) playSound(menu2Sound)
         toggleBtn.textContent = "Mostrar tabela";
 
         setTimeout(() => {
@@ -940,6 +963,7 @@
             .writeText(resultValue)
             .then(() => {
               copyBtn.textContent = "Copiado!";
+              if (easterEggMode) playSound(menu1Sound)
               setTimeout(() => (copyBtn.textContent = "Copiar"), 1500);
             })
             .catch((err) => {
